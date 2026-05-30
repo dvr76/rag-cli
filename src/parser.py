@@ -28,24 +28,9 @@ def parse_pdf(pdf_path: str | Path) -> str:
 
     md_text: str = cast(str, pymupdf4llm.to_markdown(str(pdf_path)))
 
-    print(type(md_text))
-
     console.print(f"[green]DONE:[/green] Extracted {len(md_text):,}")
 
     return md_text
-
-
-# def parse_pdf_chunked(pdf_path: str | Path) -> list[dict]:
-#     """
-#     Parse PDF into per page chunks with metadata
-
-#     Args:
-#         pdf_path: Path to the PDF file
-
-#     Returns:
-#         list[dict]:
-
-#     """
 
 
 if __name__ == "__main__":
