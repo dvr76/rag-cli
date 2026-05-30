@@ -26,6 +26,8 @@ def chunk_text(text: str, source_name: str = "unknown") -> list[dict]:
         separators=["\n\n", "\n", ". ", " ", ""],
     )
 
+    console.print("[bold]Chunking[/bold]")
+
     raw_chunks = splitter.split_text(text)
 
     chunks = []
@@ -54,14 +56,7 @@ def chunk_text(text: str, source_name: str = "unknown") -> list[dict]:
 
 if __name__ == "__main__":
     from src.parser import parse_pdf
-    from rich.panel import Panel
 
     text = parse_pdf("data/input.pdf")
 
-    chunks = chunk_text(text, "input.pdf")
-
-    first_chunk = chunks[0]
-
-    console.print(Panel(f"Text{first_chunk['text'][:60]}", title="First Chunk"))
-
-    console.print(Panel(f"Text{first_chunk['metadata']}", title="Metadata"))
+    chunk_text(text, "input.pdf")

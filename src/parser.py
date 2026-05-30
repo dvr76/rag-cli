@@ -34,13 +34,4 @@ def parse_pdf(pdf_path: str | Path) -> str:
 
 
 if __name__ == "__main__":
-    from rich.panel import Panel
-
     text = parse_pdf("data/input.pdf")
-    console.print(
-        Panel(
-            f"{text[:50]}  \n\n...\n\n  {text[-50:]}",
-            title="Parsed Text",
-            expand=False,
-        )
-    )
