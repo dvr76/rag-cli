@@ -28,7 +28,7 @@ def parse_pdf(pdf_path: str | Path) -> str:
 
     md_text: str = cast(str, pymupdf4llm.to_markdown(str(pdf_path)))
 
-    console.print(f"[green]DONE:[/green] Extracted {len(md_text):,}")
+    console.print(f"[bold green]DONE:[/bold green] Extracted {len(md_text):,}")
 
     return md_text
 
