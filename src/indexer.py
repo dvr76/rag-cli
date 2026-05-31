@@ -79,10 +79,14 @@ def clear_collection():
 if __name__ == "__main__":
     from src.parser import parse_pdf
     from src.chunker import chunk_text
+    import questionary
 
     markdown_text = parse_pdf("data/input.pdf")
     chunks = chunk_text(markdown_text)
 
     index_chunks(chunks)
 
-    clear_collection()
+    answer = questionary.confirm("Clear the collection?").ask()
+
+    if answer:
+        clear_collection()
