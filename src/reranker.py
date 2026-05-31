@@ -1,5 +1,4 @@
 from sentence_transformers import CrossEncoder
-from typing import cast
 
 _model = None
 

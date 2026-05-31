@@ -81,7 +81,7 @@ if __name__ == "__main__":
     from src.chunker import chunk_text
     import questionary
 
-    markdown_text = parse_pdf("data/input.pdf")
+    markdown_text = parse_pdf("data/sleep-guide.pdf")
     chunks = chunk_text(markdown_text)
 
     index_chunks(chunks)

@@ -34,4 +34,4 @@ def parse_pdf(pdf_path: str | Path) -> str:
 
 
 if __name__ == "__main__":
-    text = parse_pdf("data/input.pdf")
+    text = parse_pdf("data/sleep-guide.pdf")

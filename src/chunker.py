@@ -57,6 +57,6 @@ def chunk_text(text: str, source_name: str = "unknown") -> list[dict]:
 if __name__ == "__main__":
     from src.parser import parse_pdf
 
-    text = parse_pdf("data/input.pdf")
+    text = parse_pdf("data/sleep-guide.pdf")
 
-    chunk_text(text, "input.pdf")
+    chunk_text(text, "sleep-guide.pdf")
