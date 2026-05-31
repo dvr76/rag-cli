@@ -1,7 +1,7 @@
 from openai import OpenAI
 from rich.console import Console
 from src.config import settings
-
+import json
 
 console = Console()
 
@@ -13,6 +13,77 @@ Rules:
 3. Be info-dense, concise and direct.
 4. When referencing information, mention which part of the context it came from.
 5. Do not make up information or use your training data to fill gaps."""
+
+
+DECOMPOSE_PROMPT = """You are a search query decomposer for a car owner's manual RAG system.
+
+Break the user's question into 2-4 specific, focused sub-queries that will each retrieve 
+different relevant sections of the manual. Each sub-query should target a distinct aspect.
+
+Rules:
+- Return ONLY a valid JSON array of strings
+- Each string is one sub-query
+- Use terminology likely found in a car manual
+- If the question is already simple and specific, return an array with just that one question
+- Maximum 4 sub-queries
+
+Example input:
+"What are all the ways a user account can be suspended, and who can reinstate it?"
+
+Example output:
+["account suspension conditions triggers", "automatic account suspension criteria", "account reinstatement process authority"]"""
+
+
+def _get_client() -> OpenAI:
+    return OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=settings.openrouter_api_key,
+    )
+
+
+def decompose_query(query: str) -> list[str]:
+    """
+    Use LLM to decompose a complex query into focused subqueries.
+
+    Args:
+        query: Original user question
+
+    Returns:
+        list[str]: List of sub-queries (falls back to [query] on failure)
+    """
+    client = _get_client()
+
+    try:
+        response = client.chat.completions.create(
+            model=settings.llm_model,
+            messages=[
+                {"role": "system", "content": DECOMPOSE_PROMPT},
+                {"role": "user", "content": query},
+            ],
+            temperature=0,
+            max_tokens=256,
+        )
+
+        content = response.choices[0].message.content
+
+        if content is None:
+            return [query]
+
+        sub_queries = json.loads(content)
+
+        # validate it's a list of strings
+        if isinstance(sub_queries, list) and all(
+            isinstance(q, str) for q in sub_queries
+        ):
+            console.print(f"[dim]Decomposed into {len(sub_queries)} sub-queries[/dim]")
+            return sub_queries
+
+    except (json.JSONDecodeError, Exception) as e:
+        console.print(
+            f"[dim yellow]Query decomposition failed ({e}), using original query[/dim yellow]"
+        )
+
+    return [query]
 
 
 def build_prompt(query: str, context_chunks: list[dict]) -> str:

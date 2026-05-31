@@ -48,6 +48,42 @@ def retrieve(query: str, top_k: int | None = None) -> list[dict]:
     return retrieved
 
 
+def retrieve_multi(
+    queries: list[str],
+    k_per_query: int = 5,
+    limit: int = 10,
+    min_score: float = 0.4,
+) -> list[dict]:
+    """
+    Run multiple subqueries, merge, dedup and rerank results
+
+    Args:
+        queries: List of sub-queries from decomp
+        k_per_query: Results per subquery
+        limit: Max chunks to return after merging
+        min_score: Minimum relevance score
+
+    Returns:
+        list[dict]: Merged, deduplicated, reranked chunks
+    """
+
+    seen_texts: set[str] = set()
+    merged: list[dict] = []
+
+    for i, query in enumerate(queries):
+        console.print(f"   [dim]Subquery {i + 1}/{len(queries)}:[/dim] {query}")
+        results = retrieve(query, top_k=k_per_query)
+
+        for chunk in results:
+            text_key = chunk["text"].strip()
+            if text_key not in seen_texts and chunk["score"] >= min_score:
+                seen_texts.add(text_key)
+                merged.append(chunk)
+
+    merged.sort(key=lambda x: x["score"], reverse=True)
+    return merged[:limit]
+
+
 if __name__ == "__main__":
     from src.parser import parse_pdf
     from src.chunker import chunk_text

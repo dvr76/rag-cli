@@ -3,8 +3,8 @@ from rich.console import Console
 from src.parser import parse_pdf
 from src.chunker import chunk_text
 from src.indexer import index_chunks, clear_collection
-from src.retriever import retrieve
-from src.generator import generate
+from src.retriever import retrieve, retrieve_multi
+from src.generator import generate, decompose_query
 
 console = Console()
 
@@ -46,7 +46,14 @@ def ask(question: str) -> dict:
     """
     console.rule("[bold]Querying[/bold]")
 
-    chunks = retrieve(question)
+    sub_queries = decompose_query(question)
+
+    if len(sub_queries) == 1:
+        chunks = retrieve(sub_queries[0])
+    else:
+        chunks = retrieve_multi(
+            queries=sub_queries, k_per_query=5, limit=10, min_score=0.4
+        )
 
     if not chunks:
         return {
