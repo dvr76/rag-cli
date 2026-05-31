@@ -5,6 +5,7 @@ from src.chunker import chunk_text
 from src.indexer import index_chunks, clear_collection
 from src.retriever import retrieve, retrieve_multi
 from src.generator import generate, decompose_query
+from src.reranker import rerank
 
 console = Console()
 
@@ -54,6 +55,9 @@ def ask(question: str) -> dict:
         chunks = retrieve_multi(
             queries=sub_queries, k_per_query=5, limit=10, min_score=0.4
         )
+
+    # reranking
+    chunks = rerank(query=question, chunks=chunks, limit=5)
 
     if not chunks:
         return {
