@@ -3,7 +3,8 @@ from rich.console import Console
 from src.parser import parse_pdf
 from src.chunker import chunk_text
 from src.indexer import index_chunks, clear_collection
-
+from src.retriever import retrieve
+from src.generator import generate
 
 console = Console()
 
@@ -21,7 +22,7 @@ def ingest_pdf(pdf_path: str | Path) -> int:
 
     pdf_path = Path(pdf_path)
 
-    console.rule(f"[bold] Ingesting: {pdf_path.name}[/bold]")
+    console.rule(f"[bold]Ingesting: {pdf_path.name}[/bold]")
 
     text = parse_pdf(pdf_path)
 
@@ -31,6 +32,43 @@ def ingest_pdf(pdf_path: str | Path) -> int:
 
     console.rule("[bold green]Ingestion complete[/bold green]")
     return count
+
+
+def ask(question: str) -> dict:
+    """
+    Step 2: Ask question against indexed documents.
+
+    Args:
+        question: User's question
+
+    Returns:
+        dict: dictionary with answer, sources and questions.
+    """
+    console.rule("[bold]Querying[/bold]")
+
+    chunks = retrieve(question)
+
+    if not chunks:
+        return {
+            "question": question,
+            "answer": "No relevant documents found. Have you ingested a PDF yet?",
+            "sources": [],
+        }
+
+    answer = generate(question, chunks)
+
+    return {
+        "question": question,
+        "answer": answer,
+        "sources": [
+            {
+                "text": c["text"][:200] + "..." if len(c["text"]) > 200 else c["text"],
+                "source": c["metadata"].get("source", "unknown"),
+                "score": c["score"],
+            }
+            for c in chunks
+        ],
+    }
 
 
 def reset_index():
