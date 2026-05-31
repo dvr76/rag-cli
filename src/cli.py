@@ -102,7 +102,8 @@ def main():
 
     while True:
         action = questionary.select(
-            "Select an option:", choices=["Ingest a PDF", "Exit"]
+            "Select an option:",
+            choices=["Ingest a PDF", "Ask a question", "Reset index", "Exit"],
         ).ask()
 
         if action is None or action == "Exit":
