@@ -15,23 +15,25 @@ Rules:
 5. Do not make up information or use your training data to fill gaps."""
 
 
-DECOMPOSE_PROMPT = """You are a search query decomposer for a car owner's manual RAG system.
+# src/generator.py
+
+DECOMPOSE_PROMPT = """You are a search query decomposer for a document Q&A RAG system.
 
 Break the user's question into 2-4 specific, focused sub-queries that will each retrieve 
-different relevant sections of the manual. Each sub-query should target a distinct aspect.
+different relevant sections of the document. Each sub-query should target a distinct aspect.
 
 Rules:
-- Return ONLY a valid JSON array of strings
+- Return ONLY a valid JSON array of strings, no explanation, no extra text
 - Each string is one sub-query
-- Use terminology likely found in a car manual
+- Use SPECIFIC terminology, feature names, and section names likely found in the source document
+- Prefer exact technical terms over general descriptions  
+- If the question spans multiple different documents, create sub-queries for each document's topic
 - If the question is already simple and specific, return an array with just that one question
 - Maximum 4 sub-queries
 
-Example input:
-"What are all the ways a user account can be suspended, and who can reinstate it?"
+The document(s) being queried: {doc_context}
 
-Example output:
-["account suspension conditions triggers", "automatic account suspension criteria", "account reinstatement process authority"]"""
+Return ONLY the JSON array. Example: ["sub-query one", "sub-query two"]"""
 
 
 def _get_client() -> OpenAI:
